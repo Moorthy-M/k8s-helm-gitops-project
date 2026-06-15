@@ -1,0 +1,54 @@
+networks:
+  docmost-net:
+    driver: bridge
+
+volumes:
+  docmost:
+  postgresql:
+  redis:
+
+services:
+
+  docmost:
+    build: ./
+    image: moorthy265/docmost:${APP_VERSION}
+    container_name: docmost-app
+    ports:
+      - "3000:3000"
+    networks:
+      - docmost-net
+    environment:
+      APP_URL: ${APP_URL}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+    volumes:
+      - "docmost:/app/data/storage"
+    restart: unless-stopped
+    depends_on:
+      - postgresql
+      - redis
+
+  postgresql:
+    image: postgres:18
+    container_name: docmost-postgresql
+    networks:
+      - docmost-net
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    volumes:
+      - "docmost:/var/lib/postgresql"
+    restart: unless-stopped
+
+  redis:
+    image: redis:8
+    container_name: docmost-redis
+    networks:
+      - docmost-net
+    volumes:
+      - "redis:/data"
+    restart: unless-stopped
+    depends_on:
+      - postgresql
