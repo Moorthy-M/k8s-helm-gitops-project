@@ -1,0 +1,51 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: dev-env
+
+resources:
+  - ../../base
+
+namespace: docmost-dev
+
+namePrefix: dev-
+
+secretGenerator:
+  - name: docmost-secrets
+    envs:
+      - dev-secrets.env
+
+images:
+  - name: moorthy265/docmost
+    newTag: "v1"
+
+patches:
+  - target:
+      group: apps              
+      version: v1
+      kind: Deployment
+      name: app-deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: "http://0.0.0.0:3000"
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: app-deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/4/value
+        value: "postgresql://postgres_user:$(POSTGRES_PASSWORD)@dev-postgres-service:5432/postgres_db"
+
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: app-deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env/5/value
+        value: "redis://dev-redis-service:6379"

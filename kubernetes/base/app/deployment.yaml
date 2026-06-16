@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: app-deployment
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docmost
+  
+  template:
+    metadata:
+      labels:
+        app: docmost
+    spec:
+      containers:
+        - name: docmost-app
+          image: moorthy265/docmost:v1
+          env:
+          - name: APP_URL
+            value: "http://localhost:3000"
+          - name: PORT
+            value: "3000"
+          - name: APP_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: docmost-secrets
+                key: APP_SECRET
+          - name: POSTGRES_PASSWORD
+            valueFrom: 
+              secretKeyRef:
+                  name: docmost-secrets
+                  key: POSTGRES_PASSWORD
+          - name: DATABASE_URL
+            value: "postgresql://postgres_user:$(POSTGRES_PASSWORD)@postgres-service:5432/postgres_db"
+          - name: REDIS_URL
+            value: "redis://redis-service:6379"
