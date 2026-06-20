@@ -1,0 +1,38 @@
+global:
+  environment: dev-env
+
+namespace: dev
+
+service:
+  type: "ClusterIP"
+  port: "3000"
+
+app:  
+
+  replicaCount: 2
+
+  repository: moorthy265/docmost
+  tag: v1
+
+  imagePullPolicy: IfNotPresent
+
+  config:
+    appUrl: "http://localhost:3000"
+    port: "3000"
+    secretName: "docmost-secrets"
+  
+postgresql:
+  enabled: true
+  auth:
+    username: postgresUser
+    database: postgresDb
+    existingSecret: "docmost-secrets"
+    secretKeys:
+      adminPasswordKey: "POSTGRES_PASSWORD"  
+      userPasswordKey: "POSTGRES_PASSWORD"
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+
