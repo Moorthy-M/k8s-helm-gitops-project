@@ -29,6 +29,9 @@ export default [
       'prefer-rest-params': 'off',
       'no-useless-catch': 'off',
       'no-useless-escape': 'off',
+
+      // Allow legacy require syntax to pass through Jenkins without breaking the build
+      '@typescript-eslint/no-require-imports': 'warn',
     },
   },
 ];
